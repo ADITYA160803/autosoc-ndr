@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoSOC NDR - Live Processing Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-shield-haltered"></i>
+                <span>AUTOSOC</span>
+                <small>NDR v2.0</small>
+            </div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-bell"></i>
+                    <span>Alerts</span>
+                    <span class="badge" id="alertBadge">0</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-history"></i>
+                    <span>Timeline</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="status">
+                    <i class="fas fa-circle" style="color: #10b981;"></i>
+                    <span>System Online</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="page-title">
+                    <h1>Live Processing Dashboard</h1>
+                    <p>Real-time network threat detection & analysis pipeline</p>
+                </div>
+                <div class="header-actions">
+                    <div class="user-menu">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Analyst</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Upload Section -->
+            <div class="upload-card">
+                <div class="upload-area" id="uploadArea">
+                    <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                    <h3>Upload PCAP File</h3>
+                    <p>Drag & drop or click to browse</p>
+                    <div class="file-info" id="fileInfo" style="display: none;">
+                        <i class="fas fa-file"></i>
+                        <span id="fileName"></span>
+                        <button class="remove-file" id="removeFileBtn">×</button>
+                    </div>
+                    <input type="file" id="fileInput" accept=".pcap" hidden>
+                </div>
+                <button class="analyze-btn" id="analyzeBtn" disabled>
+                    <i class="fas fa-chart-line"></i> Analyze Threat Intelligence
+                </button>
+            </div>
+
+            <!-- Pipeline Progress -->
+            <div class="pipeline-section" id="pipelineSection" style="display: none;">
+                <div class="progress-container">
+                    <div class="progress-bar-wrapper">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-percent" id="progressPercent">0%</div>
+                </div>
+                <div class="steps-grid" id="stepsGrid"></div>
+            </div>
+
+            <!-- Live Metrics -->
+            <div class="metrics-section" id="metricsSection" style="display: none;">
+                <h3><i class="fas fa-chart-simple"></i> Live Metrics</h3>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">📦 PACKETS</div>
+                        <div class="metric-value" id="metricPackets">0</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">🔗 FLOWS</div>
+                        <div class="metric-value" id="metricFlows">0</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">🌐 UNIQUE IPS</div>
+                        <div class="metric-value" id="metricIPs">0</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">🌍 DOMAINS</div>
+                        <div class="metric-value" id="metricDomains">0</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">⚠️ ALERTS</div>
+                        <div class="metric-value" id="metricAlerts">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Logs -->
+            <div class="logs-section" id="logsSection" style="display: none;">
+                <div class="logs-header">
+                    <h3><i class="fas fa-terminal"></i> Live Pipeline Logs</h3>
+                    <button class="clear-logs-btn" id="clearLogsBtn">Clear</button>
+                </div>
+                <div class="logs-container" id="logsContainer">
+                    <div class="log-placeholder">Waiting for analysis...</div>
+                </div>
+            </div>
+
+            <!-- Results Dashboard -->
+            <div class="results-section" id="resultsSection" style="display: none;">
+                <div class="kpi-grid">
+                    <div class="kpi-card critical"><div>🔴 CRITICAL</div><div class="kpi-value" id="kpiCritical">0</div></div>
+                    <div class="kpi-card high"><div>🟠 HIGH</div><div class="kpi-value" id="kpiHigh">0</div></div>
+                    <div class="kpi-card medium"><div>🟡 MEDIUM</div><div class="kpi-value" id="kpiMedium">0</div></div>
+                    <div class="kpi-card low"><div>🟢 LOW</div><div class="kpi-value" id="kpiLow">0</div></div>
+                    <div class="kpi-card total"><div>📊 TOTAL</div><div class="kpi-value" id="kpiTotal">0</div></div>
+                </div>
+
+                <div class="alerts-table-container">
+                    <div class="table-header">
+                        <h3><i class="fas fa-bell"></i> Threat Alerts</h3>
+                        <button class="export-btn" id="exportCSV"><i class="fas fa-download"></i> Export CSV</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="alerts-table" id="alertsTable">
+                            <thead>
+                                <tr><th>Risk</th><th>Severity</th><th>Rule</th><th>Source</th><th>Destination</th><th>Protocol</th><th>Reason</th></tr>
+                            </thead>
+                            <tbody id="alertsTableBody"><tr><td colspan="7" class="no-data">No alerts yet</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="export-actions">
+                    <button class="action-btn json" id="downloadJSON"><i class="fas fa-file-code"></i> Export JSON</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Alert Detail Modal -->
+    <div class="modal-overlay" id="alertModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-title-section">
+                    <h2>Alert Detail</h2>
+                    <span class="modal-severity-badge" id="modalSeverity">HIGH</span>
+                </div>
+                <button class="modal-close" id="closeModalBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-content">
+                <!-- Info Grid -->
+                <div class="modal-info-grid">
+                    <div class="modal-info-item">
+                        <label>RULE</label>
+                        <span id="modalRule">ROOT_LOGIN_ATTEMPT</span>
+                    </div>
+                    <div class="modal-info-item">
+                        <label>MITRE ID</label>
+                        <span id="modalMitreId">T1078.003</span>
+                    </div>
+                    <div class="modal-info-item">
+                        <label>TIMESTAMP</label>
+                        <span id="modalTimestamp">2026-03-17 03:00:09</span>
+                    </div>
+                    <div class="modal-info-item">
+                        <label>HOST / IP</label>
+                        <span id="modalHost">10.10.10.5 → 192.168.1.100</span>
+                    </div>
+                </div>
+                
+                <!-- MITRE ATT&CK Section -->
+                <div class="modal-mitre-section">
+                    <div class="modal-mitre-header">
+                        <i class="fas fa-shield-alt"></i>
+                        <h3>MITRE ATT&CK — <span id="modalMitreIdTitle">T1078.003</span></h3>
+                    </div>
+                    <p id="modalMitreDescription">
+                        Valid Accounts: Local Accounts. Adversaries may obtain and abuse credentials 
+                        of a local account to gain Access, Persistence, Privilege Escalation, or Defense Evasion.
+                    </p>
+                </div>
+                
+                <!-- Detail Section -->
+                <div class="modal-detail-section">
+                    <div class="modal-detail-header">
+                        <i class="fas fa-info-circle"></i>
+                        <h3>Observed Activity</h3>
+                    </div>
+                    <p id="modalDetail">
+                        Direct root login attempt from 10.10.10.5 via SSH. 
+                        Multiple failed attempts detected prior to this high-severity trigger.
+                    </p>
+                </div>
+                
+                <!-- Raw Log Section -->
+                <div class="modal-rawlog-section">
+                    <div class="modal-rawlog-header">
+                        <i class="fas fa-terminal"></i>
+                        <h3>Raw Payload Log</h3>
+                        <button class="modal-copy-btn" id="copyRawLogBtn">
+                            <i class="fas fa-copy"></i> Copy JSON
+                        </button>
+                    </div>
+                    <pre class="modal-rawlog-content" id="modalRawLog">{
+  "timestamp": "2026-03-17T03:00:09Z",
+  "event_type": "ssh_login",
+  "src_ip": "10.10.10.5",
+  "dest_ip": "192.168.1.100",
+  "user": "root",
+  "status": "success"
+}</pre>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="modal-btn modal-btn-secondary" id="dismissModalBtn">Dismiss</button>
+                <button class="modal-btn modal-btn-primary" id="isolateNodeBtn">
+                    <i class="fas fa-shield"></i> Isolate Node
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>
